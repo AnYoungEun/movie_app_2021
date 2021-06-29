@@ -1,50 +1,48 @@
 import React from 'react';
+import axios from 'axios';
+import Movie from './Movie';
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    console.log('hello');
-  }
-
   state = {
-    count: 0,
+    isLoading: true,
+    movies: [],
   };
 
-  add = () => {
-    //this.setState({ count: this.state.count + 1 }); //state를 직접 수정하는것은 지양한다
-    this.setState(current => ({
-      count: current.count + 1,
-    }));
-  }
+  getMovies = async () => {
+    // const movies = await axios.get('https://yts.mx/api/v2/list_movies.json');
+    // console.log(movies.data.data.movies);
 
-  minus = () => {
-    //this.setState({ count: this.state.count -1 });
-    this.setState(current => ({
-      count: current.count - 1,
-    }));
+    const {
+      data: {
+        data:{ movies },
+      },
+    } = await axios.get('https://yts.mx/api/v2/list_movies.json?sort_by=rating');
+    console.log(movies);
+
+    this.setState({ movies, isLoading: false });
   }
 
   componentDidMount() {
-    console.log('component rendered');
-  }
-
-  componentDidUpdate() {
-    console.log('I just updated');
-  }
-
-  componentWillUnmount() {
-    console.log('Goodbye, cruel world')
+  // 영화 데이터 로딩!
+  // setTimeout(() => {
+  //   this.setState({ isLoading: false });
+  // }, 6000);
+    this.getMovies();
+  
   }
 
   render() {
-    console.log("I'm rendering");
-    return (
-      <div>
-        <h1>The number is : {this.state.count}</h1>
-        <button onClick={this.add}>add</button>
-        <button onClick={this.minus}>minus</button>
-      </div>
-    );
+    const { isLoading, movies } = this.state;
+    return <div>{isLoading ? 'Loading...' : movies.map((movie) => {
+      console.log(movie);
+      return <Movie 
+        key = { movie.id }
+        id = { movie.id }
+        year = { movie.year }
+        title = { movie.title }
+        summary = { movie.summary }
+        poster = { movie.medium_cover_image }/>;
+    })}</div>;
   }
 }
 
